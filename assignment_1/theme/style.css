@@ -1,0 +1,255 @@
+html, body, .container-fluid {
+    height:100%;
+}
+
+body { 
+    width: 100%;
+    margin: 0%;      
+}
+
+#nav-bar-logo-brand-area {
+    padding:5px 0px 0px 5px;
+}
+
+.nav-bar-logo {
+    float:left;
+    display: inline;
+}
+
+.nav-bar-logo img {
+    width:40px;
+    height: 40px;
+} 
+
+/* Override bootstrap .navbar-brand */
+.navbar-brand {
+  font-size: 15px;
+    display:inline;
+}
+
+h3, h4, h5 {
+    font-weight: bold;
+}
+
+.content-text {
+    text-align:justify;
+}
+
+.image-camera-trending-now {
+    width:50%;
+}
+
+/* Always set the map height explicitly to define the size of the div
+* element that contains the map. */
+#map-area {
+    height: 100%;
+}
+
+/* Footer */
+.footer {
+    background-color: #292c2f;
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+	box-sizing: border-box;
+	font: bold 14px sans-serif;
+	text-align: left;
+	padding: 30px 15px 30px 15px;
+	margin-top: 15px;
+	overflow: hidden;
+}
+
+/* Footer, left of footer */
+.footer .footer-left {
+    float: none;
+}
+
+/* Footer left, company area consists of logo and brand name */
+.footer-left .footer-company {
+    vertical-align: middle;   
+}
+
+/* Footer left, company logo */
+.footer-left .footer-company-logo img {
+    width:30px;
+    height:30px;
+}
+
+/* Footer left, company brand name */
+a.footer-company-brand {
+    font-size: 14px;
+    text-decoration: none;
+    color: antiquewhite;
+    opacity: 0.5;
+}
+
+.footer-left .footer-company-address {
+    
+    margin: 15px 0 0 10px;
+    font-size: 12px;
+    color: #bbb;
+}
+
+a.footer-company-brand:hover{
+    opacity: 1.0;
+}
+
+/* Footer, right of footer */
+.footer .footer-right{
+	float: none; 
+}
+
+/* Footer right, contact us text */
+.footer .footer-right p{
+	display: block; /* inline-block */
+	vertical-align: top;
+	margin: 15px 42px 0 0;
+	color: #ffffff;
+}
+
+/* Footer left, links as general */
+.footer .footer-links{
+	color:  #ffffff;
+	margin: 0 0 15px 0;
+	padding: 0;
+}
+
+/* Footer left, links <a> */
+.footer .footer-links a{
+	display:block; /* inline-block */
+	line-height: 2.0;
+	text-decoration: none;
+	color:  inherit;
+    opacity: 0.5;
+}
+
+.footer .footer-links a:hover {
+    opacity: 1.0;
+}
+
+/* Footer right, contact us form */
+.footer form{
+	display: block;
+    margin-top:15px;
+}
+
+.footer form input,
+.footer form textarea{
+    margin: 0px;
+	display: block;
+	border-radius: 3px;
+	box-sizing: border-box;
+	background-color:  #1f2022;
+	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.1);
+	border: none;
+	resize: none;
+
+	font: inherit;
+	font-size: 14px;
+	font-weight: normal;
+	color:  #d1d2d2;
+
+	width: 100%;
+	padding: 12px;
+}
+
+.footer ::-webkit-input-placeholder {
+	color:  #5c666b;
+}
+
+.footer ::-moz-placeholder {
+	color:  #5c666b;
+	opacity: 1;
+}
+
+.footer :-ms-input-placeholder{
+	color:  #5c666b;
+}
+
+
+.footer form input{
+	height: 55px;
+	margin-bottom: 15px;
+}
+
+.footer form textarea{
+	height: 100px;
+	margin-bottom: 20px;
+}
+
+.footer form button{
+	border-radius: 3px;
+	background-color: #3E4448 ; /*#33383b*/
+	color: #ffffff;
+	border: 0;
+	padding: 15px 50px;
+	font-weight: bold;
+	float: right;
+    box-shadow: 1px 1px 2px 0 rgba(150, 150, 150, 0.1);
+}
+
+.footer form button:hover {
+    background-color: #4A5155;
+}
+
+.footer .footer-copyright {
+    clear:both;
+    display:block;
+    padding-top: 25px;
+    text-align: center;
+    font-size: 12px;
+    color: #656565;
+}
+
+.back-to-top {
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display:none;
+    z-index:100;
+    border-radius: 50%;
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.back-to-top:hover {
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display:inline !important;
+}
+
+@media (min-width: 768px) {
+    .content {
+        margin-left:0%;
+    }
+    
+    .content-side-right {
+        
+    }
+    
+    .image-camera-trending-now {
+        width:100%;
+    }
+    
+    .footer .footer-left {
+        float: left;
+        max-width: 40%;
+    }
+    
+    .footer .footer-right {
+        float: right;
+    }
+    
+    .footer form input,
+    .footer form textarea{
+        width: 300px;
+    }
+    
+}
+
+@media (min-width: 1000px) {
+    .footer form input,
+    .footer form textarea{
+        width: 400px;
+    }
+}

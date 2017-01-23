@@ -1,0 +1,6 @@
+<center><img src="resource/D750.png" class="image-camera-trending-now" /></center>
+<center><h5>Nikon D750</h5></center>
+<br/>
+<center><img src="resource/D500.jpg" class="image-camera-trending-now" /></center>
+<center><h5>Nikon D500</h5></center>
+<br/>
