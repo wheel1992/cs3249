@@ -16,42 +16,145 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
       
         <!-- Include basic views (header and footer) -->  
+        <!--
         <script src="js/include_basic.views.js"></script>
         <script src="js/textreader.js"></script>
-        
-        <!-- Google Map-->
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpzk8_vPFnecl0ANUQKOqxFNVbqSEpYxY"
-        type="text/javascript"></script>
-        <!-- Fire and show Google Map-->
-        <script src="js/map.js"></script>
-        
+        -->
+
         <script>
         $(document).ready(function(){
       
-    	$(window).scroll(function () {
-			if ($(this).scrollTop() != 0) {
-				$('#back-to-top').fadeIn();
-			} else {
-				$('#back-to-top').fadeOut();
-			}
-		}); 
-    $('#back-to-top').click(function(){
-        $("html, body").animate({ scrollTop: 0 }, 800);
-        return false;
-    });
-});
+            var height = $('.navbar-header-above-768').height();
+            var hasMoved = false;
+            
+            var windowWidth = $(window).width();
+            
+            $(window).resize(function() {
+                windowWidth = $(window).width();
+                
+                hasMoved = false;
+                
+                if (windowWidth > 768) {
+                } else {
+                    $('.navbar-header-above-768').fadeOut();
+                    $('.navbar-header-less-768').fadeIn();
+                }
+                
+                // set to default margin top for side nav
+                $('.navbar-fixed-side').animate({'margin-top': '0px'}, 100);
+                
+            });
+            
+            $(window).scroll(function () {
+                
+                windowWidth = $(window).width();
+                
+                if ($(this).scrollTop() != 0) {
+                    $('#back-to-top').fadeIn();
+
+                    $('.navbar-header-less-768').fadeIn();
+                    
+                    if (windowWidth > 768) {
+                        
+                        if (!hasMoved) {
+                            $('.navbar-fixed-side').animate({marginTop: '-=' + height + 'px'}, 300);
+
+                            hasMoved = true;
+                        }
+
+                    }
+                    
+                } else { // scrollTop = 0
+                    
+                    $('#back-to-top').fadeOut();
+                    
+                    if (windowWidth > 768) {
+                        $('.navbar-header-less-768').fadeOut();
+                        
+                       if (hasMoved) {
+                           $('.navbar-fixed-side').animate({'margin-top': '0px'}, 300);
+                            hasMoved = false;
+                        }  
+                        
+                    } 
+                    
+                }
+            }); 
+
+            $('#back-to-top').click(function(){
+                $("html, body").animate({ scrollTop: 0 }, 800);
+                return false;
+            });
+        });
         
         </script>
-        
-        
+    
     </head>
     <body> 
         
 
         <div class="container-fluid">
+            
+            <!-- For -->
             <div class="row">
-                <!-- header is col-sm-2 col-md-2 col-lg-2 -->
-                <div data-include="header"></div>
+                <div class="navbar-header navbar-header-above-768">
+                    <a class="nav-bar-logo" href="#"><img  src="resource/logo.png"/></a>
+                    <a class="navbar-brand" href="#">Nikon Photo Store</a>
+                </div>
+            </div>
+            
+            
+            
+            <div class="row">
+                
+                <!-- Header -->
+                <div class="col-sm-2 col-md-2 col-lg-2">
+                    <nav class="navbar navbar-inverse navbar-fixed-side">
+                        <!-- normal collapsible navbar markup -->
+                        <div class="container">
+                            <div class="navbar-header navbar-header-less-768">
+                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                                
+                                <!--
+                                <a class="navbar-brand" href="#">
+                                    <div>
+                                        <img class="nav-bar-logo"  src="resource/logo.png"/>
+                                        <p>Nikon Photo Store</p>
+                                    </div>
+                                </a>
+
+
+                                -->
+                                
+                                <div id="nav-bar-logo-brand-area">
+                                    <a class="nav-bar-logo" href="#"><img  src="resource/logo.png"/></a>
+                                    <a class="navbar-brand" href="#">Nikon Photo Store</a>
+                                </div>
+                                
+
+                            </div>
+
+                            <div id="navbar" class="collapse navbar-collapse">
+                                <ul class="nav navbar-nav">
+                                    <li class="active"><a href="#aboutus">About Us</a></li>
+                                    <li><a href="#dslrs">DSLRs</a></li>
+                                    <li><a href="#pointandshoots">Point-and-Shoots</a></li>
+                                    <li><a href="#lenses">Lenses</a></li>
+                                    <li><a href="#binoculars">Binoculars</a></li>
+                                    <li><a href="#photogallery">Photo Gallery</a></li>
+                                    <li><a href="#contactus">Contact Us</a></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </nav>
+                </div>
+                <!-- End of header -->
                 
                 <div class="col-sm-6 col-md-7 col-lg-7">
                     <!-- your page content --> 
@@ -59,6 +162,25 @@
                         <h3>About Us</h3>
                         <br/>
                         <div id="content-about-us">
+                            <h4>History</h4>
+                            <p class="content-text">Nikon Corporation, also known just as Nikon, is a Japanese multinational corporation headquartered in Tokyo, Japan, specializing in optics and imaging products.</p>
+
+                            <p class="content-text">
+                            Its products include cameras, camera lenses, binoculars, microscopes, ophthalmic lenses, measurement instruments, rifle scopes, spotting scopes, and the steppers used in the photolithography steps of semiconductor fabrication, of which it is the world's second largest manufacturer. The companies held by Nikon form the Nikon Group. Among its products are Nikkor imaging lenses (for F-mount cameras, large format photography, photographic enlargers, and other applications), the Nikon F-series of 35 mm film SLR cameras, the Nikon D-series of digital SLR cameras, the Coolpix series of compact digital cameras, and the Nikonos series of underwater film cameras. Nikon's main competitors in camera and lens manufacturing include Canon, Sony, Fujifilm, Panasonic, Pentax, and Olympus.</p>
+
+                            <p class="content-text">
+                            Founded on July 25, 1917 as Nippon Kogaku Kogyo Kabushikigaisha, the company was renamed to Nikon Corporation, after its cameras, in 1988. Nikon is a member of the Mitsubishi group of companies (keiretsu).</p>
+
+                            <br/>
+                            <h4>Digital Photography</h4>
+                            <p class="content-text">
+                            Nikon created some of the first digital SLRs (DSLRs, Nikon NASA F4) for NASA, used in the Space Shuttle since 1991. After a 1990s partnership with Kodak to produce digital SLR cameras based on existing Nikon film bodies, Nikon released the Nikon D1 SLR under its own name in 1999. Although it used an APS-C-size light sensor only 2/3 the size of a 35 mm film frame (later called a "DX sensor"), the D1 was among the first digital cameras to have sufficient image quality and a low enough price for some professionals (particularly photojournalists and sports photographers) to use it as a replacement for a film SLR. The company also has a Coolpix line which grew as consumer digital photography became increasingly prevalent through the early 2000s.</p>
+
+                            <p class="content-text">
+                            Through the mid-2000s, Nikon's line of professional and enthusiast DSLRs and lenses including their back compatible AF-S lens line remained in second place behind Canon in SLR camera sales, and Canon had several years' lead in producing professional DSLRs with light sensors as large as traditional 35 mm film frames. All Nikon DSLRs from 1999 to 2007, by contrast, used the smaller DX size sensor.</p>
+
+                            <p class="content-text">
+                            Then, 2005 management changes at Nikon led to new camera designs such as the full-frame Nikon D3 in late 2007, the Nikon D700 a few months later, and mid-range SLRs. Nikon regained much of its reputation among professional and amateur enthusiast photographers as a leading innovator in the field, especially because of the speed, ergonomics, and low-light performance of its latest models. The mid-range Nikon D90, introduced in 2008, was also the first SLR camera to record video. Since then video mode has been introduced to many more of the Nikon DSLR cameras including the Nikon D3S, Nikon D7000, Nikon D5100, Nikon D3100, Nikon D3200 and Nikon D5100. More recently, Nikon has released a photograph and video editing suite called ViewNX to browse, edit, merge and share images and videos.</p>
                         </div>
                     </div>
                 </div>
@@ -68,6 +190,12 @@
                         <h3>Trending Now</h3>
                         <br/>
                         <div id="content-trending-now">
+                            <center><img src="resource/D750.png" class="image-camera-trending-now" /></center>
+                            <center><h5>Nikon D750</h5></center>
+                            <br/>
+                            <center><img src="resource/D500.jpg" class="image-camera-trending-now" /></center>
+                            <center><h5>Nikon D500</h5></center>
+                            <br/>
                         </div>
                     </div>
                 </div>
@@ -88,8 +216,49 @@
                 </div>
             </div>
 
+            
             <div class="row">
-                 <div data-include="footer"></div>
+                <!-- <div data-include="footer"></div> -->
+                
+                <!-- Footer -->
+                <div  class="col-sm-offset-2 col-sm-10 col-md-offset-2 col-md-10 col-lg-offset-2 col-lg-10 footer">
+                    <div class="footer-left">
+                        <div class="footer-company">
+                            <a class="footer-company-logo" href="#"><img  src="resource/logo.png"/></a>
+                            <a class="footer-company-brand" href="#">Nikon Photo Store</a>
+                            <div class="footer-company-address">
+                                <p>60 Anson Road, #09-01 Mapletree Anson
+                                Singapore 079914</p>
+                                <p>Operating Hours :</p> 
+                                <p>Mon - Fri: 9am - 5:30pm</p>
+                            </div>
+                        </div>
+
+                        <p class="footer-links">
+                            <a href="#aboutus">&bull; About Us</a>
+                            <a href="#dslrs">&bull; DSLRs</a>
+                            <a href="#pointandshoots">&bull; Point-and-Shoots</a>
+                            <a href="#lenses">&bull; Lenses</a>
+                            <a href="#binoculars">&bull; Binoculars</a>
+                            <a href="#photogallery">&bull; Photo Gallery</a>
+                        </p>
+
+                    </div>
+
+                    <div class="footer-right">
+                        <p>Contact Us</p>
+                        <form action="#" method="post">
+                            <input type="text" name="email" placeholder="Email" />
+                            <textarea name="message" placeholder="Message"></textarea>
+                            <button>Submit</button>
+                        </form>
+                    </div>
+
+                    <div class="footer-copyright">
+                        <p>&copy;2017 Nkion Photo Store - Joseph Cheng</p>
+                    </div>
+                </div>
+                <!-- End of Footer -->
             </div>
            
             <a id="back-to-top" href="#" class="btn btn-circle btn-primary btn-lg back-to-top" role="button" title="Back to Top" data-toggle="tooltip" data-placement="top">
@@ -102,6 +271,12 @@
     
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        
+        <!-- Google Map-->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpzk8_vPFnecl0ANUQKOqxFNVbqSEpYxY"
+        type="text/javascript"></script>
+        <!-- Fire and show Google Map-->
+        <script src="js/map.js"></script>
 
         
         

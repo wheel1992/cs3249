@@ -7,24 +7,50 @@ body {
     margin: 0%;      
 }
 
+.navbar-header-above-768 {
+    width:100%;
+    display:none;
+    background: #111;
+    text-align:center;
+    z-index:100;
+}
+
+.navbar-header-above-768 .navbar-brand {
+    color: #777;
+}
+
+.navbar-header-above-768 .navbar-brand:hover,
+.navbar-header-above-768 .navbar-brand:focus{
+    color: #ffffff;
+    background-color: transparent;
+}
+
+.navbar-header-less-768 {
+    display:block;
+    text-align: center;
+}
+
 #nav-bar-logo-brand-area {
-    padding:5px 0px 0px 5px;
+    /* padding:5px 0px 0px 5px;*/
 }
 
 .nav-bar-logo {
-    float:left;
-    display: inline;
+    width: 100%;
+    padding-top:8px;
+    display:block;
 }
 
-.nav-bar-logo img {
-    width:40px;
-    height: 40px;
+.nav-bar-logo img{
+    width:80px; /* 40px */
+    height: 80px;
 } 
 
 /* Override bootstrap .navbar-brand */
 .navbar-brand {
-  font-size: 15px;
-    display:inline;
+    width: 100%;
+    font-size: 15px;
+    display:block;
+    margin-left:-25px;
 }
 
 h3, h4, h5 {
@@ -219,6 +245,19 @@ a.footer-company-brand:hover{
 }
 
 @media (min-width: 768px) {
+    
+    .navbar-header-above-768 {
+       display:block;
+    }
+    
+    .navbar-header-less-768 {
+        display:none;
+    }
+    
+    .navbar-brand {
+        margin-left:0px;
+    }
+    
     .content {
         margin-left:0%;
     }
