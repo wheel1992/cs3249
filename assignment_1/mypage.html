@@ -53,12 +53,14 @@
                     $('#back-to-top').fadeIn();
 
                     $('.navbar-header-less-768').fadeIn();
+                    $('.navbar-header-above-768').fadeOut();
                     
                     if (windowWidth > 768) {
                         
                         if (!hasMoved) {
+                            /*
                             $('.navbar-fixed-side').animate({marginTop: '-=' + height + 'px'}, 300);
-
+                            */
                             hasMoved = true;
                         }
 
@@ -70,6 +72,7 @@
                     
                     if (windowWidth > 768) {
                         $('.navbar-header-less-768').fadeOut();
+                         $('.navbar-header-above-768').fadeIn();
                         
                        if (hasMoved) {
                            $('.navbar-fixed-side').animate({'margin-top': '0px'}, 300);
@@ -115,9 +118,9 @@
                             <div class="navbar-header navbar-header-less-768">
                                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                                     <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar top-bar"></span>
+                                    <span class="icon-bar middle-bar"></span>
+                                    <span class="icon-bar bottom-bar"></span>
                                 </button>
                                 
                                 <!--
