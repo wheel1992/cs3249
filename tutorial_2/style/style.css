@@ -61,7 +61,6 @@ main {
     display: flex;
     -webkit-flex-flow: row wrap;
     flex-flow: row wrap;
-    background: #0f0;
 }
 
 .splash {
