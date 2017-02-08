@@ -1,0 +1,170 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    max-width: 100%;
+}
+
+header {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+header .nav-logo {
+    width: 25%;
+    height: 25%;
+    margin: 0.5em;
+}
+
+header .nav-logo img {
+    width: 100%;
+}
+
+
+nav {
+    width: 100%;
+    padding: 0.938em;
+    text-align: right;
+    
+    
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+
+
+nav .nav-link {
+    margin-top: 0.3em;
+}
+
+nav .nav-link a {
+    padding: 0.3em;
+}
+
+
+main {
+    padding: 0.938em;
+    
+}
+
+.container {
+    max-width: 100%;
+    padding: 0.938em;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    background: #0f0;
+}
+
+.splash {
+    max-width: 100%;
+}
+
+.splash .splash-image {
+    width: 100%;
+}
+
+.splash .splash-image img{
+    width: 100%;
+}
+
+.splash .splash-content {
+    width: 100%;
+}
+
+.gallery {
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.gallery img {
+    display: inline-block;
+    
+    width: 45%;
+    height: 45%;
+    
+    margin: 0.3em;
+}
+
+
+/* Anything above here is style for max-width 767.999999px */ 
+
+/* Tablet */
+@media screen and (min-width: 768px) {
+    
+    header {
+        justify-content: space-between;
+    }
+    
+    header .nav-logo {
+        width: 20%;
+        height: 20%;
+        margin: 1.0em;
+    }
+    
+    nav {
+        width: auto;
+        align-self:flex-end;
+    }
+
+    nav .nav-link {
+        margin-top: 0.3em;
+        float: right;
+    }
+
+    nav .nav-link a {
+        padding: 0.5em;
+    }
+    
+    .splash {
+        justify-content: space-between;
+    }
+    
+    .splash .splash-image {
+        width: 50%;
+    }
+    
+    .splash .splash-image img{  
+    }
+    
+    .splash .splash-content {
+        width: 48%;
+        padding-left: 0.938em;
+    }
+    
+    .gallery img{
+        width: 30%;
+        height: 30%;
+        
+        margin: 0.5em;
+    }
+
+}
+
+/* Desktop */
+@media screen and (min-width: 1024px) {
+    
+    .splash .splash-image {
+        width: 40%;
+    }
+    
+    .splash .splash-content {
+        width: 58%;
+        padding-left: 0.938em;
+    }
+    
+    .gallery img{
+        width: 20%;
+        height: 20%;
+
+        margin: 0.5em;
+    }
+}
