@@ -1,0 +1,34 @@
+#display-turn-area {
+    font-size: 1.3em;
+    color: white;
+    text-align: center;
+}
+
+#display-timer-area {
+    font-size: 2.0em;
+    text-align: center;
+}
+
+.black-theme {
+    background: #000000;
+}
+
+.red-theme {
+    background: #ff0000;
+}
+
+.blue-theme {
+    background: #0000ff;
+}
+
+.black-text {
+    color: #000000;
+}
+
+.red-text {
+    color: #ff0000;
+}
+
+.blue-text {
+    color: #0000ff;
+}

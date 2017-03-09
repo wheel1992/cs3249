@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+
+<!--
+  COLLABORATORS:
+  
+-->
+<html>
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Checkerboard</title>
+
+<!-- Load style sheets -->
+<link rel="stylesheet" type="text/css" href="mainLayout.css" />
+<link rel="stylesheet" type="text/css" href="style/style.css" />
+
+<!-- Load any supplemental Javascript libraries here -->
+<script type="text/javascript" src="external_js/jquery-1.9.0.min.js"></script>
+<script type="text/javascript" src="checker.js"></script>
+<script type="text/javascript" src="boardEvent.js"></script>
+<script type="text/javascript" src="board.js"></script>
+<script type="text/javascript" src="rules.js"></script>
+
+<script type="text/javascript" src="external_js/convert.js"></script>
+<script type="text/javascript" src="external_js/draw_arrow.js"></script>
+<script type="text/javascript" src="external_js/dragdrop.js"></script><script type="text/javascript" src="external_js/history.js"></script>
+    
+    
+<script type="text/javascript">
+
+//This script extracts parameters from the URL
+//from jquery-howto.blogspot.com
+
+    $.extend({
+        getUrlVars : function() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(
+                    window.location.href.indexOf('?') + 1).split('&');
+            for ( var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        },
+        getUrlVar : function(name) {
+            return $.getUrlVars()[name];
+        }
+    });
+
+    var DEFAULT_BOARD_SIZE = 8;
+    var MAX_WIDTH = 400;
+    var MAX_HEIGHT = 400;
+    
+    var myBoardState; // save the state without arrows
+    var prevBoardState; // save the state of previous board 
+    var storeMoveState; // save the state of movement
+    
+
+    
+    //data model
+    var board;
+    var rules;
+    var whoseTurn = "black";	
+
+    var directionOf = function(color) {
+      if (color == "black") {
+        return -1;
+      }
+      return 1;
+    }
+
+    // Fill in this function to toggle the display for whose turn
+    // The color parameter should be either "black" or "red"
+    var toggleTurn = function(color) {
+	   // Your code here
+        if (color == "black") {
+            whoseTurn = "red";
+        } else {
+            whoseTurn = "black";
+        }
+    }
+
+   
+    // This allows the Javascript code inside this block to only run when the page
+    // has finished loading in the browser.
+    $(document).ready(function() {
+        
+        var finalBoardSize;
+        var finalCellSize;
+        var myBoard, painter;
+        
+        
+        var isReset = false, isUndo = false, isRedo = false;
+        
+        // remember the previous arrow's Xs and Ys values
+        var prevArrowFromX = -1, prevArrowFromY = -1, prevArrowToX = -1, prevArrowToY = -1;
+        
+        var hasCheckerRemove = false;
+        var removeCheckerCoords = []; // {"x": x, "y": y}
+        
+        var hasCheckerPromote = false;
+        var checkerKingX = -1, checkerKingY = -1;
+
+        var kingCheckerRed;
+        var kingCheckerBlack;
+        var checkerRed;
+        var checkerBlack;
+        
+        initPreLoadKingImages();
+        initPreLoadImages();
+        initButton();
+
+        myBoard = document.getElementById("board");
+        painter = myBoard.getContext("2d");
+        painter.globalCompositeOperation = "source-over";
+        
+        Timer = {
+            maxSecondPerRound : 10, // seconds
+            roundTimer : undefined,
+            gameTimer : undefined,
+            clockSecond : 0,
+            
+            init : function(second, whoseTurn) {
+                Timer.displayTimer(second, whoseTurn);
+                Timer.clockSecond = 0;
+            },
+            
+            startGameTimer : function () {
+                Timer.gameTimer = setInterval(Timer.startClock, 1000);
+            },
+            
+            stopGameTimer : function() {
+                clearInterval(Timer.gameTimer);
+                Timer.displayTimer(Timer.clockSecond, whoseTurn);
+            },
+            
+            startRoundTimer : function () {
+                Timer.roundTimer = setTimeout(Timer.startRound, Timer.maxSecondPerRound * 1000);
+            },
+            
+            resetRoundTimer : function() {
+                clearTimeout(Timer.roundTimer);
+                Timer.startRoundTimer();
+            },
+            
+            stopRoundTimer : function() {
+                clearTimeout(Timer.roundTimer);
+            },
+                
+            startClock : function() {
+                Timer.displayTimer(++Timer.clockSecond, whoseTurn);
+            },
+            
+            startRound : function() {
+                
+                toggleTurn(whoseTurn);
+                displayTurnArea(whoseTurn);
+                
+                Timer.resetRoundTimer();
+                
+            },
+
+            displayTimer : function (seconds, color) {
+                $("#display-timer-area").removeClass();
+
+                if (color == "black") {
+                    $("#display-timer-area").addClass("black-text");
+                    
+                } else if (color == "red") {
+                    $("#display-timer-area").addClass("red-text");
+                
+                } else {
+                    $("#display-timer-area").addClass("blue-text");
+                }
+
+                $("#display-timer-area p").html(Timer.secondsToHms(seconds));
+            },
+
+            secondsToHms : function (d) {
+
+                d = Number(d);
+
+                var h = Math.floor(d / 3600);
+                var m = Math.floor(d % 3600 / 60);
+                var s = Math.floor(d % 3600 % 60);
+
+                var displayHr = "", displayMin = "", displaySec = "";
+
+                displayHr = "" + h;
+                if (h < 10) displayHr = "0" + h;
+                if (h == 0) displayHr = "00";
+
+                displayMin = "" + m;
+                if (m < 10) displayMin = "0" + m;
+                if (m == 0) displayMin = "00";
+
+                displaySec = "" + s;
+                if (s < 10) displaySec = "0" + s;
+                if (s == 0) displaySec = "00";
+
+                return displayHr + ":" + displayMin + ":" + displaySec;
+
+            }
+            
+        };
+        
+        if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
+            //board = new Board($.getUrlVar('size'));
+            finalBoardSize = $.getUrlVar('size');
+        } else {
+            //board = new Board(DEFAULT_BOARD_SIZE);
+            finalBoardSize = DEFAULT_BOARD_SIZE;
+        }
+        
+        board = new Board(finalBoardSize);
+        rules = new Rules(board);
+
+        finalCellSize = MAX_WIDTH / finalBoardSize;
+        
+     	// Your code here
+        displayTurnArea(whoseTurn);
+        
+        
+        board.addEventListener('add',function (e) {
+    		// Your code here
+            console.log("board event listener ADD")
+    	}, true);
+
+    	board.addEventListener('move',function (e) {
+    		
+            console.log("board event listener MOVE")
+            console.log(e);
+            
+            
+            // if btnUndo is clicked, don't update the position
+            // state of board will do the job
+            if (isUndo) {
+                isUndo = false;
+                return false;
+            }
+            
+            // if btnRedo is clicked, don't update the position
+            // state of board will do the job
+            if (isRedo) {
+                isRedo = false;
+                return false;
+            }
+            
+            // move the checker to new position
+            handleMove(painter, e.details.checker.color, 
+                        e.details.fromRow, e.details.fromCol,
+                        e.details.toRow, e.details.toCol, 
+                        finalCellSize);
+            
+    	},true);
+
+        board.addEventListener('remove', function(e) {
+        	// always MOVE first
+            // then REMOVE checker
+            
+            console.log("board event listener REMOVE")
+            console.log(e);
+            
+            if (isReset) return false; // reset doesn't need to remove all display checkers
+            
+            /*
+            // if btnUndo is clicked, don't removes the position
+            // state of board will do the job
+            if (isUndo) {
+                isUndo = false;
+                return false;
+            }
+            
+            // if btnRedo is clicked, don't remove the position
+            // state of board will do the job
+            if (isRedo) {
+                isRedo = false;
+                return false;
+            }
+            */
+            
+            handleRemove(painter, e.details.row, e.details.col,
+                       finalCellSize);
+ 
+        }, true);
+
+        board.addEventListener('promote',function (e) {
+    		// always PROMOTE first
+            // then MOVE checker
+            console.log("board event listener PROMOTE")
+            console.log(e);
+            
+            //console.log("board event listener PROMOTE at " + e.details.checker.row + ", " + e.details.checker.col);
+            
+            handlePromote(painter,
+                          e.details.checker.row,
+                          e.details.checker.col,
+                          finalCellSize);
+            
+    	},true);
+
+        
+
+        
+        $("#btnNewGame").click(function(evt) {
+            
+            disableButton("btnNewGame");
+            enableButton("btnResetGame");
+            enableButton("btnAutoMove");
+            disableButton("btnUndo");
+            disableButton("btnRedo");
+            
+            isReset = false;
+            
+            Timer.startGameTimer();
+            Timer.startRoundTimer();
+            
+            saveBoardState(painter);
+            
+        });
+        
+        $("#btnResetGame").click(function(evt) {
+            
+            enableButton("btnNewGame");
+            disableButton("btnResetGame");
+            disableButton("btnAutoMove");
+            disableButton("btnUndo");
+            disableButton("btnRedo");
+            
+            isReset = true;
+            
+            whoseTurn = "black";
+            
+            Timer.stopGameTimer();
+            Timer.stopRoundTimer();
+            
+            //board = new Board(finalBoardSize);
+            rules = new Rules(board);
+            
+            board.prepareNewGame();
+            
+            displayTurnArea(whoseTurn);
+            displayBoard(finalBoardSize);
+            
+            Timer.init(0, whoseTurn);
+            History.init();
+            
+            myBoardState = null;
+            prevBoardState = null;
+            
+        });
+
+        $("#btnAutoMove").click(function(evt) {
+            var playerColor = whoseTurn;
+            var playerDirection = directionOf(playerColor);
+
+            var result = rules.makeRandomMovement(playerColor, playerDirection);
+            
+            if (result != null) {
+                console.log(result);
+                
+                toggleTurn(playerColor);
+                
+                // reset each turn round timer
+                Timer.resetRoundTimer();
+                
+                // save the moves into history,
+                // save the state of the board into history
+                addHistory(prevBoardState, result, playerColor);
+                
+            } else {
+                console.log("==== GAME END ====");
+                handleGameEnd();
+            }
+            
+        });
+        
+        $("#btnUndo").click(function(evt) {
+            handleUndo();
+        });
+        
+        $("#btnRedo").click(function(evt) {
+            handleRedo();
+        });
+        
+
+        board.prepareNewGame();
+        displayBoard(finalBoardSize);
+        Timer.init(0, whoseTurn);
+        
+        
+        function displayBoard(size) {
+
+            var sizePieceSquare = MAX_WIDTH / size; /**/
+
+            for(var i = 0; i < size; i++) {
+
+                for(var j = 0; j < size; j++) {
+
+                    if((i+j)%2 === 0)   
+                        painter.fillStyle = "#FFFFFF"; // Setting painter’s color
+                    else
+                        painter.fillStyle = "#a9a9a9";
+
+                    painter.fillRect(i * sizePieceSquare,
+                         j * sizePieceSquare,
+                         sizePieceSquare,
+                         sizePieceSquare);
+                }
+            }
+
+            displayInitialCheckers(painter, size, sizePieceSquare);
+
+            DragDrop.init(board, rules, myBoard, MAX_WIDTH, MAX_HEIGHT, sizePieceSquare, checkerRed, checkerBlack, kingCheckerRed, kingCheckerBlack);
+
+        }
+
+        function displayInitialCheckers(painter, boardSize, cellSize) {
+            // red checkers
+            // first 2 rows, first row second column, second row first column
+
+            var checkerRed = new Image();
+            checkerRed.src = 'graphics/red-piece.png';
+
+            checkerRed.onload = function(){
+
+                for (var i=0; i < boardSize; i++){
+                    painter.drawImage(checkerRed,
+                                i * cellSize,
+                                (1 - i % 2) * cellSize,
+                                cellSize,
+                                cellSize);
+                }
+            };
+            
+            // black checkers
+            // last 2 rows, second last row second column, last row first column
+
+            var checkerBlack = new Image();
+            checkerBlack.src = 'graphics/black-piece.png'; 
+            checkerBlack.onload = function(){
+
+                for (var i=0; i < boardSize; i++){
+                    painter.drawImage(checkerBlack,
+                                i * cellSize,
+                                (boardSize - 1 - i%2) * cellSize,
+                                cellSize,
+                                cellSize);
+
+                }
+            };
+            
+        }
+
+        
+        function handleMove(painter, currentColor, oldRow, oldCol, newRow,      newCol, cellSize) {
+            
+            var oldX = Convert.toXCoordinate(oldCol, cellSize);
+            var oldY = Convert.toYCoordinate(oldRow, cellSize);
+            var newX = Convert.toXCoordinate(newCol, cellSize);
+            var newY = Convert.toYCoordinate(newRow, cellSize);
+            
+            console.log("****** START HANDLE MOVE ******")
+            
+            restoreBoardState(painter, myBoardState);
+            
+            if (hasCheckerRemove) {
+                hasCheckerRemove = false;
+                
+                for (var i = 0; i< removeCheckerCoords.length; i++) {
+                    removeChecker(painter, removeCheckerCoords[i].x, removeCheckerCoords[i].y, cellSize);
+                }
+                
+                removeCheckerCoords = []; // clear all
+            }
+            
+            moveChecker(painter, currentColor, 
+                        oldX, oldY,
+                        newX, newY, 
+                        cellSize);
+            
+            // save state of new checker position
+            saveBoardState(painter);
+            
+            // draw move arrow
+            displayMoveArrow(painter,
+                            oldX,
+                            oldY,
+                            newX,
+                            newY,
+                            cellSize);
+            
+            
+            toggleTurn(whoseTurn);
+            displayTurnArea(whoseTurn);
+            
+            // reset each turn round timer
+            Timer.resetRoundTimer();
+
+            console.log("****** END HANDLE MOVE ******")
+        }
+        
+        function handleRemove(painter, row, col, cellSize) {
+            // reset the cell at specific row and col
+            var x = Convert.toXCoordinate(col, cellSize);
+            var y = Convert.toYCoordinate(row, cellSize);
+            
+            removeChecker(painter, x, y, cellSize);
+            
+            displayMoveArrow(painter, prevArrowFromX, prevArrowFromY,
+                            prevArrowToX, prevArrowToY, cellSize);
+            
+            hasCheckerRemove = true;
+            removeCheckerCoords.push({"x" : x, "y" : y});
+            
+        }
+        
+        function handlePromote(painter, row, col, cellSize) {
+            hasCheckerPromote = true;     
+        }
+        
+        function handleGameEnd() {
+            displayTurnArea("blue");
+            whoseTurn = "blue";
+            Timer.stopGameTimer();
+            Timer.stopRoundTimer();
+        }
+        
+        function addHistory(boardState, move, color) {
+            History.addNew(boardState, move, color);
+            
+            if (History.getUndoSize() > 0) {
+                enableButton("btnUndo");
+                disableButton("btnRedo");
+            }
+            
+        }
+        
+        function handleRedo() {
+            disableButton("btnUndo");
+            disableButton("btnRedo");
+            
+            var forward = History.redo();
+            
+            if (forward != null) {
+                isRedo = true;
+                
+                restoreBoardState(painter, forward.state);
+                
+                myBoardState = forward.state; // set back to current board state
+                
+                
+                var fromX = Convert.toXCoordinate(forward.move.from_col, finalCellSize);
+                var fromY = Convert.toYCoordinate(forward.move.from_row, finalCellSize);
+                
+                var toX = Convert.toXCoordinate(forward.move.to_col, finalCellSize);
+                var toY = Convert.toYCoordinate(forward.move.to_row, finalCellSize);
+                
+                
+                moveChecker(painter, forward.color, fromX, fromY, toX, toY, finalCellSize)
+                
+                
+                // ==== update board.js ====
+                
+                // move to forward position in board
+                var forwardChecker = new Checker(forward.color, 
+                                              forward.move.made_king);
+                forwardChecker.row = forward.move.from_row;
+                forwardChecker.col = forward.move.from_col;
+                
+                board.moveTo(forwardChecker, 
+                             forward.move.to_row, 
+                             forward.move.to_col);
+                
+                saveBoardState(painter);
+                
+                // remove removed checkers back to board
+                for(var i = 0; i < forward.move.remove.length; i++) {
+                    
+                    var removeChecker = new Checker(forward.move.remove[i].color, forward.move.remove[i].isKing);
+                    
+                    removeChecker.row = forward.move.remove[i].row;
+                    removeChecker.col = forward.move.remove[i].col;
+                    
+                    console.log("handleRedo remove " + forward.move.remove[i].row + ", " + forward.move.remove[i].col);
+                                    
+                    board.remove(removeChecker);
+
+                }
+
+                displayMoveArrow(painter, fromX, fromY, toX, toY, finalCellSize);
+                
+                toggleTurn(forward.color);
+                displayTurnArea(whoseTurn);
+                Timer.startClock();
+                Timer.resetRoundTimer();
+                
+            }
+            
+            if (History.getUndoSize() > 0) {
+                enableButton("btnUndo");
+            }
+            
+             if (History.getRedoSize() > 0) {
+                enableButton("btnRedo");
+            }
+        }
+        
+        function handleUndo() {
+            disableButton("btnUndo");
+            disableButton("btnRedo");
+            
+            var previous = History.undo();
+            
+            if (previous != null) {
+                
+                isUndo = true;
+                
+                restoreBoardState(painter, previous.state);
+                
+                myBoardState = previous.state; // set back to current board state
+                
+               
+                // draw arrow from to_col, to_row to from_col, from_row
+                // if made_king is true, revert back to normal chess
+                // if there's object in remove array
+                // then add back
+                
+                var fromX = Convert.toXCoordinate(previous.move.to_col, finalCellSize);
+                var fromY = Convert.toYCoordinate(previous.move.to_row, finalCellSize);
+                
+                var toX = Convert.toXCoordinate(previous.move.from_col, finalCellSize);
+                var toY = Convert.toYCoordinate(previous.move.from_row, finalCellSize);
+                
+                // ==== update board.js ====
+                
+                // move to previous position in board
+                
+                var previousChecker = new Checker(previous.color, 
+                                              previous.move.made_king);
+                previousChecker.row = previous.move.to_row;
+                previousChecker.col = previous.move.to_col;
+                
+                board.moveTo(previousChecker, 
+                             previous.move.from_row, 
+                             previous.move.from_col);
+                
+                
+                // add removed checkers back to board
+                for(var i = 0; i < previous.move.remove.length; i++) {
+                    
+                    var removedChecker = new Checker(previous.move.remove[i].color, previous.move.remove[i].isKing);
+                    
+                    console.log("handleUndo add back " + previous.move.remove[i].row + ", " + previous.move.remove[i].col);
+                    
+                    board.add(removedChecker, previous.move.remove[i].row, previous.move.remove[i].col);
+                    
+                    
+                    var y1 = Convert.toYCoordinate(previous.move.remove[i].row, finalCellSize);
+                    var x1 = Convert.toXCoordinate(previous.move.remove[i].col, finalCellSize);
+                    
+                    // remove position that is saved in array before
+                    for (var i = 0; i< removeCheckerCoords.length; i++) {
+                        
+                        if (removeCheckerCoords[i].x == x1 &&
+                            removeCheckerCoords[i].y == y1) {
+                            
+                            removeCheckerCoords.splice(i, 1);
+                        }
+                    }
+                    
+                    
+                }
+                
+                displayMoveArrow(painter, fromX, fromY, toX, toY, finalCellSize);
+  
+                
+                whoseTurn = previous.color;
+                displayTurnArea(previous.color);
+                Timer.startClock();
+                Timer.resetRoundTimer();
+                
+            }
+            
+            if (History.getUndoSize() > 0) {
+                enableButton("btnUndo");
+            }
+            
+             if (History.getRedoSize() > 0) {
+                enableButton("btnRedo");
+            }
+            
+        }
+
+
+        function moveChecker(painter, currentColor, oldX, oldY, newX, newY, cellSize) {
+            
+            if (hasCheckerPromote) {
+                hasCheckerPromote = false;
+                
+                promoteChecker(painter, currentColor, newX, newY, cellSize);
+                
+            } else { // not king yet
+                
+                // get checker at old position
+                var oldChecker = painter.getImageData(oldX, oldY, cellSize, cellSize);
+
+                // copy checker pixel from old position to new position
+                painter.putImageData(oldChecker, newX, newY);
+            }
+            
+            // remove old checker
+            removeChecker(painter, 
+                            oldX, 
+                            oldY,
+                          cellSize);
+                        
+
+        }
+
+        function removeChecker(painter, x, y, cellSize) {
+            redrawCell(painter, x, y, cellSize);
+        }
+
+        function promoteChecker(painter, color, x, y, cellSize) { 
+            // console.log("promoteChecker at " + x + ", " + y);      
+            
+            if (color == "red") {
+                painter.drawImage(kingCheckerRed,
+                                x,
+                                y,
+                                cellSize,
+                                cellSize);
+                
+            } else {
+                painter.drawImage(kingCheckerBlack,
+                                x,
+                                y,
+                                cellSize,
+                                cellSize);
+            }
+            
+            
+        }
+
+        function displayMoveArrow(painter, oldX, oldY, newX, newY, cellSize) {
+        
+
+            var centerSquareLength = cellSize / 2;
+
+            drawArrow(painter, 
+                        oldX + centerSquareLength,
+                        oldY + centerSquareLength, 
+                        newX + centerSquareLength,
+                        newY + centerSquareLength);
+            
+            prevArrowFromX = oldX;
+            prevArrowFromY = oldY;
+            prevArrowToX = newX;
+            prevArrowToY = newY;
+            
+            //console.log("displayMoveArrow " + prevArrowFromX + ", " + prevArrowFromY + " to " + prevArrowToX + ", " + prevArrowToY);
+            
+        }
+
+        
+
+
+        /*
+        If checker move more than 1 cell, it is a jump
+        */
+        function determineJump(oldRow, oldCol, newRow, newCol, cellSize) {
+
+            var fromX = Convert.toXCoordinate(oldCol, cellSize);
+            var fromY = Convert.toYCoordinate(oldRow, cellSize);
+            var toX = Convert.toXCoordinate(newCol, cellSize);
+            var toY = Convert.toYCoordinate(newRow, cellSize);
+
+            return (fromX - toX > cellSize || 
+                toX - fromX > cellSize ||
+                fromY - toY > cellSize ||
+                toY - fromY > cellSize);
+        }
+        
+        
+        function saveBoardState(painter) {
+            
+            myBoardState = painter.getImageData(0, 0, MAX_WIDTH, MAX_HEIGHT);
+            
+            console.log("================ BOARD STATE IS SAVED ================");
+            
+        }
+        
+        function restoreBoardState(painter, state) {
+            if (state != null) {
+                painter.putImageData(state, 0, 0);
+                
+                console.log("================ BOARD STATE IS RESTORED ================");
+                
+                prevBoardState = state;
+            }
+        }
+        
+        function initButton() {
+            enableButton("btnNewGame");
+            disableButton("btnResetGame");
+            disableButton("btnAutoMove");
+            disableButton("btnUndo");
+            disableButton("btnRedo");
+        }
+        
+        function initPreLoadKingImages() {
+            kingCheckerRed = new Image();
+            kingCheckerRed.src = 'graphics/red-king.png';
+            kingCheckerRed.onload = function(){
+                console.log("CHECKER KING RED IS LOADED");
+            };
+            
+            kingCheckerBlack = new Image();
+            kingCheckerBlack.src = 'graphics/black-king.png';
+            kingCheckerBlack.onload = function(){
+                console.log("CHECKER KING BLACK IS LOADED");
+            };
+        }
+        
+         function initPreLoadImages() {
+            checkerRed = new Image();
+            checkerRed.src = 'graphics/red-piece.png';
+            checkerRed.onload = function(){
+                console.log("CHECKER RED IS LOADED");
+            };
+            
+            checkerBlack = new Image();
+            checkerBlack.src = 'graphics/black-piece.png';
+            checkerBlack.onload = function(){
+                console.log("CHECKER BLACK IS LOADED");
+            };
+        }
+        
+        
+        
+    });
+    
+    
+    function redrawCell(painter, x, y, cellSize) {
+
+        //console.log("redrawCell (row, col) " + row + ", " + col + " with cellsize of " + cellSize);
+        var row = Convert.toRow(y, cellSize);
+        var col = Convert.toColumn(x, cellSize); 
+        
+        if((row+col)%2 === 0)   
+            painter.fillStyle = "#FFFFFF"; // Setting painter’s color
+        else
+            painter.fillStyle = "#a9a9a9";  
+        
+        painter.fillRect(x, y,
+             cellSize,
+             cellSize); 
+    }
+    
+    function displayTurnArea(color) {
+        $("#display-turn-area").removeClass();
+        
+        if (color == "black") {
+            $("#display-turn-area").addClass("black-theme");
+            $("#display-turn-area p").html("Black Turn");
+            
+        } else if (color == "red"){
+            $("#display-turn-area").addClass("red-theme");
+            $("#display-turn-area p").html("Red Turn");
+        
+        } else { // blue
+            $("#display-turn-area").addClass("blue-theme");
+            $("#display-turn-area p").html("Game End");
+        }
+    }
+    
+    
+    
+    function disableButton(buttonId) {
+        $('#' + buttonId).prop('disabled', true);
+    }
+    
+    function enableButton(buttonId) {
+        $('#' + buttonId).prop('disabled', false);
+    }
+        
+</script>
+
+
+</head>
+
+<body>
+
+<table id="mainTable">
+    <tr>
+        <td id="navigation">
+          <table>
+                <tr>    
+                    <td>
+                        <div id="display-timer-area">
+                            <p></p>
+                        </div>
+                    </td>
+                </tr>
+			  <tr>
+                <td>
+                    <div id="display-turn-area">
+                        <p></p>
+                    </div>
+                </td>
+              </tr>
+              <tr><td><input id="btnNewGame" type="button" name="new" value="Start Game"/></td></tr>
+              <tr><td><input id="btnResetGame" type="button" name="reset" value="Reset Game"/></td></tr>
+              <tr><td><input id="btnAutoMove" type="button" name="automove" value="Auto Move"/></td></tr>
+                <tr><td><input id="btnUndo" type="button" name="undo" value="Undo"/></td></tr>
+              <tr><td><input id="btnRedo" type="button" name="redo" value="Redo"/></td></tr>
+            </table>
+        </td>
+
+        <td id="content">
+			
+            <!-- Your code here -->
+            
+            
+            <canvas id="board" width="400px" height="400px" style="background:#fff;">
+            </canvas>
+            
+            
+        </td>
+    </tr>
+
+   </table>
+
+</body>
+
+</html>
